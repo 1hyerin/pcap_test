@@ -83,9 +83,6 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-
-	u_int32_t ipArrange;
-	u_int32_t tcpArrange;
 	unsigned short e_type;
 
 	struct ethhdr *ethernet;
@@ -128,20 +125,17 @@ int main(int argc, char* argv[]) {
 
 			if (iphdrs->ip_p == IPPROTO_TCP) {
 				printf("==TCP==\n");
-				ipArrange = IP_HEADERLENGTH(iphdrs)*4;
-
-				tcphdrs = (struct tcphdr *)(packet + ETH_SIZE + ipArrange);
-				tcpArrange = DATA_OFFSET(tcphdrs)*4;
+				tcphdrs = (struct tcphdr *)(packet + ETH_SIZE + (IP_HEADERLENGTH(iphdrs)*4));
 
 				printf("Source Port: %d\n", ntohs(tcphdrs->th_sport));
 				printf("Destination Port: %d\n", ntohs(tcphdrs->th_dport));
 				
-				data = (char *)(packet + ETH_SIZE + ipArrange + tcpArrange);
-				data_length = ntohs(iphdrs->ip_len)-(ipArrange + tcpArrange);
+				data = (char *)(packet + ETH_SIZE + (IP_HEADERLENGTH(iphdrs)*4) + (DATA_OFFSET(tcphdrs)*4));
+				data_length = ntohs(iphdrs->ip_len)-((IP_HEADERLENGTH(iphdrs)*4) + (DATA_OFFSET(tcphdrs)*4));
 
 				if (data_length != 0) {
 					printf("data: ");
-					for (int i=1; i< data_length; i++) {
+					for (int i=1; i<data_length; i++) {
 						printf("%02x ", data[i-1]);
 						if (i%16 == 0) {
 							break;

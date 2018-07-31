@@ -1,3 +1,4 @@
+
 /** BoB 7기 원혜린 */
 /** 제출 일자: 2018년 07월 30일 */
 /** params sample: ./pcap_test any */
@@ -63,7 +64,6 @@ struct tcphdr {
 	#define TH_URG 0x20
 	#define TH_ECE 0x40
 	#define TH_CWR 0x80
-	#define TH_FLAGS (0x01|0x02|0x04|0x10|0x20|0x40|0x80)
 	u_int16_t th_win; /* window */
 	u_int16_t th_sum; /* checksum */
 	u_int16_t th_urp; /* urgent pointer */
@@ -149,4 +149,3 @@ int main(int argc, char* argv[]) {
   	pcap_close(handle);
   	return 0;
 }
-

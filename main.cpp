@@ -47,13 +47,13 @@ struct iphdr {
 	struct in_addr ip_destination; /* dest ip address */
 };
 
+	
 struct tcphdr {
 	u_int16_t th_sport; /* source port */
 	u_int16_t th_dport; /* destination port */
 	u_int32_t th_seq; /* sequence number */
 	u_int32_t th_ack; /* acknowledgement number */
-	u_int8_t th_offx2; /* data offset & (unused) */
-	#define DATA_OFFSET(th) (((th)->th_offx2 & 0xf0) >> 4)
+	u_int8_t th_off_x2; /* data offset & (unused) */
 	u_char th_flags;
 	#define TH_FIN 0x01
 	#define TH_SYN 0x02
@@ -68,7 +68,6 @@ struct tcphdr {
 	u_int16_t th_sum; /* checksum */
 	u_int16_t th_urp; /* urgent pointer */
 };
-
 
 int main(int argc, char* argv[]) {
 	if (argc != 2) {
@@ -130,14 +129,14 @@ int main(int argc, char* argv[]) {
 				printf("Source Port: %d\n", ntohs(tcphdrs->th_sport));
 				printf("Destination Port: %d\n", ntohs(tcphdrs->th_dport));
 				
-				data = (char *)(packet + ETH_SIZE + (IP_HEADERLENGTH(iphdrs)*4) + (DATA_OFFSET(tcphdrs)*4));
-				data_length = ntohs(iphdrs->ip_len)-((IP_HEADERLENGTH(iphdrs)*4) + (DATA_OFFSET(tcphdrs)*4));
+				data = (char *)(packet + ETH_SIZE + (IP_HEADERLENGTH(iphdrs)*4) + ((((tcphdrs)->th_off_x2 & 0xf0) >> 4)*4));
+				data_length = ntohs(iphdrs->ip_len)-((IP_HEADERLENGTH(iphdrs)*4) + ((((tcphdrs)->th_off_x2 & 0xf0) >> 4)*4));
 
 				if (data_length != 0) {
-					printf("data: ");
+					printf("data: ");(((tcphdrs)->th_off_x2 & 0xf0) >> 4);
 					for (int i=1; i<data_length; i++) {
 						printf("%02x ", data[i-1]);
-						if (i%16 == 0) {
+						if (i == 16) {
 							break;
 						}
 					}

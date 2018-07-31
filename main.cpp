@@ -19,7 +19,6 @@
 #define ETH_ALEN 6
 #define ETH_SIZE 14
 
-#define IP_HEADERLENGTH(ip) (((ip)->ip_vhl) & 0x0f)
 
 void usage() {
 	printf("params: pcap_test <interface> \n");
@@ -71,6 +70,7 @@ int main(int argc, char* argv[]) {
     		usage();
     		return -1;
 	}
+
   	char* dev = argv[1];
   	char errbuf[PCAP_ERRBUF_SIZE];
   	pcap_t* handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
@@ -121,13 +121,13 @@ int main(int argc, char* argv[]) {
 
 			if (iphdrs->ip_p == IPPROTO_TCP) {
 				printf("==TCP==\n");
-				tcphdrs = (struct tcphdr *)(packet + ETH_SIZE + (IP_HEADERLENGTH(iphdrs)*4));
+				tcphdrs = (struct tcphdr *)(packet + ETH_SIZE + ((((iphdrs)->ip_vhl) & 0x0f)*4));
 
 				printf("Source Port: %d\n", ntohs(tcphdrs->th_sport));
 				printf("Destination Port: %d\n", ntohs(tcphdrs->th_dport));
 				
-				data = (char *)(packet + ETH_SIZE + (IP_HEADERLENGTH(iphdrs)*4) + ((((tcphdrs)->th_off_x2 & 0xf0) >> 4)*4));
-				data_length = ntohs(iphdrs->ip_len)-((IP_HEADERLENGTH(iphdrs)*4) + ((((tcphdrs)->th_off_x2 & 0xf0) >> 4)*4));
+				data = (char *)(packet + ETH_SIZE + ((((iphdrs)->ip_vhl) & 0x0f)*4) + ((((tcphdrs)->th_off_x2 & 0xf0) >> 4)*4));
+				data_length = ntohs(iphdrs->ip_len)-(((((iphdrs)->ip_vhl) & 0x0f)*4) + ((((tcphdrs)->th_off_x2 & 0xf0) >> 4)*4));
 
 				if (data_length != 0) {
 					printf("data: ");(((tcphdrs)->th_off_x2 & 0xf0) >> 4);
